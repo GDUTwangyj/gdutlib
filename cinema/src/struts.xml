@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN" "http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<!-- 开发模式，修改配置文件之后不用重启服务器 -->
+	<constant name="struts.devMode" value="true" />
+	<!-- 指定需要struts2处理的请求后缀，该属性的默认值为Action，如果设置为do,action表示do或Action请求后缀都可以 -->
+	<constant name="struts.action.extension" value="action,do" />
+	<!-- 指定web应用的默认编码集，相当于servlet中setcharacterEncoding方法 -->
+	<constant name="struts.i18n.encoding" value="utf-8"/>
+	<!-- 设置struts标签的主题 -->
+	<constant name="struts.ui.theme" value="simple"></constant>
+	<constant name="struts.multipart.saveDir" value="/tmp"/>
+	<package name="default" namespace="/" extends="struts-default">		
+		<!-- 配置拦截器 -->
+		<interceptors>
+			<!-- 从新配置strut2中默认的上传文件的拦截器 -->
+			<interceptor-stack name="fileUpload">
+				<interceptor-ref name="defaultStack">
+					<!-- 配置上传文件的最大值，限制大小 -->
+					<param name="fileUpload.maxmumSize">100*1024*1024</param>
+					<!-- 限制上传文件类型 -->
+					<param name="fileUpload.allowedTypes">image/png,image/jpg,image/gif,image/jpeg</param>
+					<!-- 限制上传文件的后缀名 -->
+					<param name="fileUpload.allowedExtensions">jsp,png,gif</param>
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>		
+		
+		<global-results>	
+			<result name="success" >${path}</result>		
+			<result name="error">${path}</result>
+			<result name="input" >${path}</result>
+			<result name="login" type="chain">${path}</result>
+		</global-results>
+				
+		<action name="user_*" class="com.action.UserAction" method="{1}">
+			<result name="jump"  type="chain">%{path}</result>
+			<result name="input" >${path}</result>
+		</action>		
+		
+		<action name="provinces" class="com.action.ProvincesAction" >
+			<result name="success">register.jsp</result>
+		</action>
+		<action name="film_*"  class="com.action.FilmAction" method="{1}">
+			<param name="downPath">/upload</param>
+			<result name="download" type="stream">
+				<!-- 下载文件类型 -->
+				<param name="contentType">image/jpg</param>
+				<!-- 下载文件的方式：在线打开（inline）或附件(attachment)形式 -->
+				<param name="contentDisposition">attachment;filename=%{downFileName}</param>
+				<!-- 下载文件的输入了名称 -->
+				<param name="inputName">inputStream</param>
+				<!-- 下载文件缓冲区大小 -->
+				<param name="bufferSize">8192</param>
+			</result>
+			<result name="jump"  type="chain">%{path}</result>
+		</action>
+	</package>
+</struts>
